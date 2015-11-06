@@ -1,8 +1,13 @@
 package clj
 
-import "go/ast"
+import (
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"io"
+)
 
-func Parse(decl ast.Decl) Expr {
+func ParseExpr(decl ast.Decl) Expr {
 	fn := decl.(*ast.FuncDecl)
 
 	paramsList := fn.Type.Params.List
@@ -31,4 +36,26 @@ func Parse(decl ast.Decl) Expr {
 			},
 		},
 	}
+}
+
+type File struct {
+	Exprs []Expr
+}
+
+func (f *File) Text() string {
+	return f.Exprs[0].Text()
+}
+
+func ParseFile(src io.Reader) (*File, error) {
+	f, err := parser.ParseFile(token.NewFileSet(), "src.go", src, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	file := &File{
+		Exprs: []Expr{
+			ParseExpr(f.Decls[0]),
+		},
+	}
+	return file, nil
 }

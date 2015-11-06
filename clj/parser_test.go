@@ -1,25 +1,21 @@
 package clj
 
 import (
-	"go/ast"
-	"go/parser"
-	"go/token"
+	"strings"
 	"testing"
 )
 
-func TestParseAST(t *testing.T) {
+func TestParseFile(t *testing.T) {
 	goSrc := `package main
 
 func Square(x int) int { return x * x }`
 
-	f, err := parse(goSrc)
+	cljFile, err := ParseFile(strings.NewReader(goSrc))
 	if err != nil {
-		t.Fatal("unexpectd error: ", err)
+		t.Fatal("unexpected error: ", err)
 	}
 
-	cljast := Parse(f.Decls[0])
-
-	if cljast.Text() != "(defn Square [x] (* x x))" {
+	if cljFile.Text() != "(defn Square [x] (* x x))" {
 		t.Errorf(`parse ast:
 expect
 
@@ -27,11 +23,6 @@ expect
 
 but got
 
-       %s`, cljast.Text())
+       %s`, cljFile.Text())
 	}
-}
-
-func parse(src string) (*ast.File, error) {
-	fset := token.NewFileSet()
-	return parser.ParseFile(fset, "src.go", src, 0)
 }
