@@ -7,7 +7,7 @@ Go - Clojure transpiler
 ```bash
 $ go get github.com/wingyplus/goclj
 $ cd $GOPATH/src/github.com/wingyplus/goclj
-$ ./goclj examples/square.go
+$ goclj examples/square.go
 $ cat examples/square.clj
 (defn Square [x] (* x x))
 ```
