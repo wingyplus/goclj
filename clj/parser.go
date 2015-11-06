@@ -7,20 +7,20 @@ import (
 	"io"
 )
 
-func ParseExpr(decl ast.Decl) Expr {
-	fnDecl := decl.(*ast.FuncDecl)
+func parseExpr(decl ast.Decl) Expr {
+	return parseFunc(decl.(*ast.FuncDecl))
+}
 
+func parseFunc(fnDecl *ast.FuncDecl) *Func {
 	paramsList := fnDecl.Type.Params.List
 	params := make(Vector, len(paramsList))
 	for i, param := range paramsList {
 		params[i] = Symbol(param.Names[0].Name)
 	}
 
-	expr := fnDecl.Body.List[0].(*ast.ReturnStmt).Results[0].(*ast.BinaryExpr)
-
 	fn := NewFunc(fnDecl.Name.Name)
 	fn.SetParams(params)
-	fn.SetBody([]Expr{parseBinaryExpr(expr)})
+	fn.SetBody([]Expr{parseBinaryExpr(fnDecl.Body.List[0].(*ast.ReturnStmt).Results[0].(*ast.BinaryExpr))})
 
 	return fn
 }
@@ -45,7 +45,7 @@ func ParseFile(src io.Reader) (*File, error) {
 
 	file := &File{
 		Exprs: []Expr{
-			ParseExpr(f.Decls[0]),
+			parseExpr(f.Decls[0]),
 		},
 	}
 	return file, nil
