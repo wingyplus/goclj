@@ -54,3 +54,45 @@ func join(list []Expr) string {
 	}
 	return strings.Join(l, " ")
 }
+
+type BinaryExpr struct {
+	Macro
+}
+
+func NewBinaryExpr(op, x, y string) *BinaryExpr {
+	return &BinaryExpr{
+		Macro: Macro{
+			Name: &Ident{
+				Name: op,
+			},
+			List: []Expr{
+				Symbol(x), Symbol(y),
+			},
+		},
+	}
+}
+
+type Func struct {
+	Macro
+}
+
+func NewFunc(name string) *Func {
+	return &Func{
+		Macro: Macro{
+			Name: &Ident{
+				Name: "defn",
+			},
+			List: []Expr{
+				Symbol(name),
+			},
+		},
+	}
+}
+
+func (fn *Func) SetParams(params Vector) {
+	fn.List = append(fn.List, params)
+}
+
+func (fn *Func) SetBody(stmt []Expr) {
+	fn.List = append(fn.List, stmt...)
+}

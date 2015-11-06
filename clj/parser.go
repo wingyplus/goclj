@@ -8,34 +8,25 @@ import (
 )
 
 func ParseExpr(decl ast.Decl) Expr {
-	fn := decl.(*ast.FuncDecl)
+	fnDecl := decl.(*ast.FuncDecl)
 
-	paramsList := fn.Type.Params.List
+	paramsList := fnDecl.Type.Params.List
 	params := make(Vector, len(paramsList))
 	for i, param := range paramsList {
 		params[i] = Symbol(param.Names[0].Name)
 	}
 
-	biexpr := fn.Body.List[0].(*ast.ReturnStmt).Results[0].(*ast.BinaryExpr)
+	expr := fnDecl.Body.List[0].(*ast.ReturnStmt).Results[0].(*ast.BinaryExpr)
 
-	return &Macro{
-		Name: &Ident{
-			Name: "defn",
-		},
-		List: []Expr{
-			Symbol(fn.Name.Name),
-			params,
-			&Macro{
-				Name: &Ident{
-					Name: biexpr.Op.String(),
-				},
-				List: []Expr{
-					Symbol(biexpr.X.(*ast.Ident).Name),
-					Symbol(biexpr.Y.(*ast.Ident).Name),
-				},
-			},
-		},
-	}
+	fn := NewFunc(fnDecl.Name.Name)
+	fn.SetParams(params)
+	fn.SetBody([]Expr{parseBinaryExpr(expr)})
+
+	return fn
+}
+
+func parseBinaryExpr(expr *ast.BinaryExpr) *BinaryExpr {
+	return NewBinaryExpr(expr.Op.String(), expr.X.(*ast.Ident).Name, expr.Y.(*ast.Ident).Name)
 }
 
 type File struct {
