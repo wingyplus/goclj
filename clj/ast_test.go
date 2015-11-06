@@ -41,3 +41,21 @@ func TestMacro(t *testing.T) {
 		t.Error("macro: not match (defn [x]) return", m.Text())
 	}
 }
+
+func TestIf(t *testing.T) {
+	testExpr(t, If(NewBinaryExpr("=", "x", "y"), NewBinaryExpr("*", "x", "y"), nil), "(if (= x y) (* x y))")
+	testExpr(t, If(NewBinaryExpr("=", "x", "y"), NewBinaryExpr("*", "x", "y"), NewBinaryExpr("+", "x", "y")), "(if (= x y) (* x y) (+ x y))")
+}
+
+func testExpr(t *testing.T, expr Expr, cljSrc string) {
+	if text := expr.Text(); text != cljSrc {
+		t.Errorf(`parse ast:
+expect
+
+       %s
+
+but got
+
+       %s`, cljSrc, text)
+	}
+}

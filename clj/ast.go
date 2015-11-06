@@ -96,3 +96,24 @@ func (fn *Func) SetParams(params Vector) {
 func (fn *Func) SetBody(stmt []Expr) {
 	fn.List = append(fn.List, stmt...)
 }
+
+type IfExpr struct {
+	Macro
+}
+
+func If(condition Expr, then Expr, els Expr) *IfExpr {
+	var exprs []Expr
+	if els == nil {
+		exprs = []Expr{condition, then}
+	} else {
+		exprs = []Expr{condition, then, els}
+	}
+	return &IfExpr{
+		Macro: Macro{
+			Name: &Ident{
+				Name: "if",
+			},
+			List: exprs,
+		},
+	}
+}
